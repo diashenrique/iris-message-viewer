@@ -34,7 +34,6 @@ XData MyInstall [ XMLNamespace = INSTALLER ]
 
   </Namespace>
 
-
   <Invoke Class="App.Installer" Method="SetAppProperties">
     <Arg Value="${CSPURL}"/>
     <Arg Value="${APPPATH}csp/"/>

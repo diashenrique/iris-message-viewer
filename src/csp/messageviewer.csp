@@ -64,7 +64,7 @@
 			<!-- End Navbar -->
 		</div>
 
-		<!-- Inicio Conteudo Dashboard -->
+		<!-- Begin Message Viewer -->
 		<div class="main-panel">
 			<div class="content">
 				<div class="panel-header bg-primary-gradient">
@@ -78,10 +78,8 @@
 					</div>
 				</div>
 
-				<!-- Inicio Widgets -->
+				<!-- Begin Datagrid -->
 				<div class="page-inner mt--5">
-
-					<!-- Consumo de Licenca 5 Minutos -->
 					<div class="row mt--2">
 						<div class="col-md-12">
 							<div class="card full-height">
@@ -113,7 +111,7 @@
 						</div>
 					</div>
 				</div>
-				<!-- End Widgets -->
+				<!-- End Datagrid -->
 			</div>
 
 			<!-- Begin Footer -->
@@ -137,7 +135,7 @@
 			</footer>
 			<!-- End Footer -->
 		</div>
-		<!-- End Conteudo Dashboard -->
+		<!-- End Message Viewer -->
 	</div>
 	<!-- End Wrapper -->
 

@@ -8,15 +8,16 @@ Parameter NAMESPACE = "MSGVIEWER";
 Parameter PRODUCTION = "Demo.IRIS.Production";
 
 /// Number of messages to be generated per service
-Parameter LIMIT = 1000;
+Parameter LIMIT = 300;
 
-/// Helper to install a new namespace and production to display capabilities of the enhanced viewer
+/// Helper to install a production to display capabilities of the enhanced viewer
 ClassMethod Install() As %Status
 {
 	Set sc = $$$OK
 	Try {
 		Set sc = $$$ADDSC(sc,..InstallProduction()) quit:$$$ISERR(sc)
 		Set sc = $$$ADDSC(sc,..GenerateMessages()) quit:$$$ISERR(sc)
+		Set sc = $$$ADDSC(sc,..GenerateUsingEnsDirector()) quit:$$$ISERR(sc)
 	}
     Catch (err) {
 		Set sc = $$$ADDSC(sc,err.AsStatus())
@@ -29,8 +30,8 @@ ClassMethod InstallProduction() As %Status [ Private ]
 {
 	Set sc = $$$OK
 	Try {
-		Set sc = $$$ADDSC(sc,..CreateRequest("Demo.Message.SimpleRequest","Message")) quit:$$$ISERR(sc)
-		Set sc = $$$ADDSC(sc,..CreateRequest("Demo.Message.AnotherRequest","Something")) quit:$$$ISERR(sc)
+		Set sc = $$$ADDSC(sc,..CreateRequest("diashenrique.messageviewer.Message.SimpleRequest","Message")) quit:$$$ISERR(sc)
+		Set sc = $$$ADDSC(sc,..CreateRequest("diashenrique.messageviewer.Message.AnotherRequest","Something")) quit:$$$ISERR(sc)
 		Set sc = $$$ADDSC(sc,..CreateOperation()) quit:$$$ISERR(sc)
 		Set sc = $$$ADDSC(sc,..CreateRESTService()) quit:$$$ISERR(sc)
 		Set sc = $$$ADDSC(sc,..CreateProduction()) quit:$$$ISERR(sc)
@@ -44,7 +45,7 @@ ClassMethod InstallProduction() As %Status [ Private ]
 	Return sc
 }
 
-/// Create new Ensemble production
+/// Create new Interoperability Production
 ClassMethod CreateProduction(purge As %Boolean = 0) As %Status [ Private ]
 {
 	New $Namespace
@@ -66,12 +67,22 @@ ClassMethod CreateProduction(purge As %Boolean = 0) As %Status [ Private ]
 
 		Set production = ##class(Ens.Config.Production).%OpenId(..#PRODUCTION)
 		Set item = ##class(Ens.Config.Item).%New()
-		Set item.ClassName = "Demo.Service.REST"
+		Set item.ClassName = "diashenrique.messageviewer.Service.REST"
 		Do production.Items.Insert(item)
 		Set sc = $$$ADDSC(sc,production.%Save())
 
 		Set item = ##class(Ens.Config.Item).%New()
-		Set item.ClassName = "Demo.Operation.Consumer"
+		Set item.ClassName = "diashenrique.messageviewer.Operation.Consumer"
+		Do production.Items.Insert(item)
+		Set sc = $$$ADDSC(sc,production.%Save())	
+
+		Set item = ##class(Ens.Config.Item).%New()
+		Set item.ClassName = "diashenrique.messageviewer.Service.SendMessage"
+		Do production.Items.Insert(item)
+		Set sc = $$$ADDSC(sc,production.%Save())	
+
+		Set item = ##class(Ens.Config.Item).%New()
+		Set item.ClassName = "diashenrique.messageviewer.Operation.ConsumeMessageClass"
 		Do production.Items.Insert(item)
 		Set sc = $$$ADDSC(sc,production.%Save())	
 	}
@@ -115,7 +126,7 @@ ClassMethod CreateOperation() As %Status [ Private ]
 	Set $Namespace = ..#NAMESPACE
 	Set sc = $$$OK
 	Try {
-		Set classname = "Demo.Operation.Consumer"
+		Set classname = "diashenrique.messageviewer.Operation.Consumer"
 		Set class = ##class(%Dictionary.ClassDefinition).%New(classname)
 		Set class.GeneratedBy = $ClassName()
 		Set class.Super = "Ens.BusinessOperation"
@@ -126,10 +137,10 @@ ClassMethod CreateOperation() As %Status [ Private ]
 		Set xdata.Name = "MessageMap"
 		Set xdata.XMLNamespace = "http://www.intersystems.com/urlmap"
 		Do xdata.Data.WriteLine("<MapItems>")
-		Do xdata.Data.WriteLine("<MapItem MessageType=""Demo.Message.SimpleRequest"">")
+		Do xdata.Data.WriteLine("<MapItem MessageType=""diashenrique.messageviewer.Message.SimpleRequest"">")
 		Do xdata.Data.WriteLine("<Method>Consume</Method>")
 		Do xdata.Data.WriteLine("</MapItem>")
-		Do xdata.Data.WriteLine("<MapItem MessageType=""Demo.Message.AnotherRequest"">")
+		Do xdata.Data.WriteLine("<MapItem MessageType=""diashenrique.messageviewer.Message.AnotherRequest"">")
 		Do xdata.Data.WriteLine("<Method>Consume</Method>")
 		Do xdata.Data.WriteLine("</MapItem>")
 		Do xdata.Data.WriteLine("</MapItems>")		
@@ -140,7 +151,7 @@ ClassMethod CreateOperation() As %Status [ Private ]
 		Set method.Name = "Consume"
 		Set method.ClassMethod = 0
 		Set method.ReturnType = "%Status"
-		Set method.FormalSpec = "input:Demo.Message.SimpleRequest,&output:Ens.Response"
+		Set method.FormalSpec = "input:diashenrique.messageviewer.Message.SimpleRequest,&output:Ens.Response"
 		Set stream = ##class(%Stream.TmpCharacter).%New()
 		Do stream.WriteLine("	set sc = $$$OK")
 		Do stream.WriteLine("	$$$TRACE(input.Message)")
@@ -163,7 +174,7 @@ ClassMethod CreateRESTService() As %Status [ Private ]
 	Set $Namespace = ..#NAMESPACE
 	Set sc = $$$OK
 	Try {
-		Set classname = "Demo.Service.REST"
+		Set classname = "diashenrique.messageviewer.Service.REST"
 		Set class = ##class(%Dictionary.ClassDefinition).%New(classname)
 		Set class.GeneratedBy = $ClassName()
 		Set class.Super = "EnsLib.REST.Service, Ens.BusinessService"
@@ -202,10 +213,10 @@ ClassMethod CreateRESTService() As %Status [ Private ]
 		Set method.FormalSpec = "input:%Library.AbstractStream,&output:%Stream.Object"
 		Set stream = ##class(%Stream.TmpCharacter).%New()
 		Do stream.WriteLine("	set sc = $$$OK")
-		Do stream.WriteLine("	set request = ##class(Demo.Message.SimpleRequest).%New()")
+		Do stream.WriteLine("	set request = ##class(diashenrique.messageviewer.Message.SimpleRequest).%New()")
 		Do stream.WriteLine("	set data = {}.%FromJSON(input)")
 		Do stream.WriteLine("	set request.Message = data.Message")
-		Do stream.WriteLine("	set sc = $$$ADDSC(sc,..SendRequestSync(""Demo.Operation.Consumer"",request,.response))")
+		Do stream.WriteLine("	set sc = $$$ADDSC(sc,..SendRequestSync(""diashenrique.messageviewer.Operation.Consumer"",request,.response))")
 		Do stream.WriteLine("	return sc")
 		Set method.Implementation = stream
 		Set sc = $$$ADDSC(sc,method.%Save())
@@ -217,10 +228,10 @@ ClassMethod CreateRESTService() As %Status [ Private ]
 		Set method.FormalSpec = "input:%Library.AbstractStream,&output:%Stream.Object"
 		Set stream = ##class(%Stream.TmpCharacter).%New()
 		Do stream.WriteLine("	set sc = $$$OK")
-		Do stream.WriteLine("	set request = ##class(Demo.Message.AnotherRequest).%New()")
+		Do stream.WriteLine("	set request = ##class(diashenrique.messageviewer.Message.AnotherRequest).%New()")
 		Do stream.WriteLine("	set data = {}.%FromJSON(input)")
 		Do stream.WriteLine("	set request.Something = data.Something")
-		Do stream.WriteLine("	set sc = $$$ADDSC(sc,..SendRequestSync(""Demo.Operation.Consumer"",request,.response))")
+		Do stream.WriteLine("	set sc = $$$ADDSC(sc,..SendRequestSync(""diashenrique.messageviewer.Operation.Consumer"",request,.response))")
 		Do stream.WriteLine("	return sc")
 		Set method.Implementation = stream
 		Set sc = $$$ADDSC(sc,method.%Save())
@@ -255,6 +266,26 @@ ClassMethod GenerateMessages() As %Status [ Private ]
 			Set serverUrl = action($Random(2))
 			Do httprequest.EntityBody.Write(content.%ToJSON())
 			Set sc = httprequest.Post(serverUrl) 
+			Quit:$$$ISERR(sc)
+		}
+	}
+    Catch (err) {
+		Set sc = $$$ADDSC(sc,err.AsStatus())
+	}
+	Return sc
+}
+
+/// Generates load of messages using Ens.Director class
+ClassMethod GenerateUsingEnsDirector() As %Status [ Private ]
+{
+	New $Namespace
+	Set $Namespace = ..#NAMESPACE
+	Set sc = $$$OK
+	Try {
+		For i=1:1:..#LIMIT {
+			Set tSC = ##class(Ens.Director).CreateBusinessService("diashenrique.messageviewer.Service.SendMessage",.tService)
+			Set message = "Message Generated By CreateBusinessService "_$Random(1000)
+			Set tSC = tService.ProcessInput(message,.output)
 			Quit:$$$ISERR(sc)
 		}
 	}

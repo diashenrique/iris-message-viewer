@@ -1,3 +1,5 @@
+ARG IMAGE=store/intersystems/iris-community:2019.3.0.309.0
+ARG IMAGE=store/intersystems/iris-community:2019.4.0.379.0
 ARG IMAGE=store/intersystems/iris-community:2019.4.0.383.0
 FROM $IMAGE
 

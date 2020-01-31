@@ -4,7 +4,7 @@ services:
     build: .
     restart: always
     ports:
-      - "1972:51773"
+      - 51773
       - ${IRIS_PORT}:52773
       - 53773
     volumes:
