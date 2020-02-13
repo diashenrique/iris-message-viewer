@@ -8,7 +8,6 @@
       <SourcesRoot>src</SourcesRoot>
       <Resource Name="diashenrique.messageviewer.MessageViewer.cls"/>
       <Resource Name="diashenrique.messageviewer.util.InstallerProduction.cls"/>
-      <SystemSetting Name="CSP.DefaultFileCharset" Value="UTF-8"/>
       <CSPApplication
         Url="/csp/msgviewer"
         Path="/src/csp"
