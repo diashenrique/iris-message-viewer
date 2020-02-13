@@ -3,7 +3,7 @@
 This project has the intention to show a different approach for the Interoperability Message Viewer.
 
 The article Alternative Message Viewer describes how to create an Interoperability Production, Business Service and Business Operation using code.<br>
-<https://community.intersystems.com/post/iris-interoperability-message-viewer> <br>
+<https://community.intersystems.com/post/building-alternative-iris-message-viewer> <br>
 
 ## How to Run
 
