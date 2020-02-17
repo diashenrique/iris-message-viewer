@@ -472,7 +472,7 @@
 			var newUrl = urlOrigin + "/csp/sys/UtilHome.csp"
 			$("#urlPortal").attr("href", newUrl);
 
-			var selectedNamespace = "";
+			var selectedNamespace = localStorage.getItem('namespace');
 
 			$("#namespaceField").dxSelectBox({
 				dataSource: new DevExpress.data.DataSource({
@@ -486,11 +486,13 @@
 					})
 				}),
 				width: 300,
+				value: selectedNamespace,
 				valueExpr: 'id',
 				displayExpr: 'text',
 				placeholder: "Choose Your Namespace",
 				onValueChanged: function (data) {
 					selectedNamespace = data.value;
+					localStorage.setItem('namespace',data.value);
 					if (selectedNamespace) {
 						$("#buttonApply").dxButton({
 							disabled: false
@@ -503,7 +505,6 @@
 				icon: "search",
 				type: "default",
 				text: "Search",
-				disabled: true,
 				onClick: function (e) {
 					dataGridProcesses(selectedNamespace);
 				}
