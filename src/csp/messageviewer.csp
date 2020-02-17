@@ -41,6 +41,11 @@
 		.hidden {
 			display: none;
 		}
+		.sessionLink {
+			cursor: pointer;
+			font-weight: bold;
+			color: #1A68D6 !important; 
+		}
 	</style>
 </head>
 
@@ -262,7 +267,7 @@
 					visible: true,
 					cellTemplate: function (container, options) {
 						var linkSessionID = options.data.SessionId;
-						container.append($("<a>").addClass('dx-link').text(linkSessionID).on("click", function (args) {
+						container.append($("<a>").addClass('sessionLink').text(linkSessionID).on("click", function (args) {
 							openDetails(selectedNamespace, linkSessionID);
 						}).appendTo(container));
 					}
