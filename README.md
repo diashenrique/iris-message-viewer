@@ -98,3 +98,11 @@ Select the message(s) you need and click to Resend. This feature uses the ClassM
 ![Excel File](https://raw.githubusercontent.com/diashenrique/iris-message-viewer/master/images/ExportToExcel.png)
 
 The excel shows the same format, content, and group defined in the CSP.
+
+## Other information
+
+The project was created as a Technology Example using the possibilities provided by InterSystems IRIS.
+
+The library used for this demo, DevExtreme, it's free to use and to develop non-commercial applications.
+
+For specific feature availability and license restrictions, please, visit the website to the product feature [comparison](https://js.devexpress.com/Buy/), and the [DevExtreme Non-Commercial, Non-Competitive License Agreement](https://js.devexpress.com/EULAs/DevExtremeNonCommercial/), respectively.
