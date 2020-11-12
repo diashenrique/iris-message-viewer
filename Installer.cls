@@ -3,7 +3,7 @@ Include %occInclude
 Class App.Installer
 {
 
-XData MyInstall [ XMLNamespace = INSTALLER ]
+XData setup
 {
 <Manifest>
   <Default Name="NAMESPACE" Value="MSGVIEWER"/>
@@ -19,37 +19,18 @@ XData MyInstall [ XMLNamespace = INSTALLER ]
     <Configuration>
       <Database Name="${DBNAME}" Dir="${APPPATH}data" Create="yes" Resource="${RESOURCE}" MountAtStartup="true"/>
     </Configuration>
-
-    <CSPApplication Url="${CSPURL}" 
-  Directory="${APPPATH}csp/" 
-  ServeFiles="1"
-  Recurse="1" 
-  Grant="%DB_${NAMESPACE},%SQL"
-  AuthenticationMethods="32" 
-    />
-
+    <CSPApplication Url="${CSPURL}" Directory="${APPPATH}csp/" ServeFiles="1" Recurse="1" Grant="%DB_${NAMESPACE},%SQL" AuthenticationMethods="32" />
     <Import File="${SOURCESPATH}/cls" Recurse="1"/>
-
     <Invoke Class="diashenrique.messageviewer.util.InstallerProduction" Method="Install" /> 
-
   </Namespace>
-
-  <Invoke Class="App.Installer" Method="SetAppProperties">
-    <Arg Value="${CSPURL}"/>
-    <Arg Value="${APPPATH}csp/"/>
-  </Invoke>
-
-  <Invoke Class="App.Installer" Method="CompileCSP">
-    <Arg Value="${CSPURL}"/>
-    <Arg Value="${NAMESPACE}"/>
-  </Invoke>
-
 
 </Manifest>
 }
+
 ClassMethod setup(ByRef pVars, pLogLevel As %Integer = 3, pInstaller As %Installer.Installer, pLogger As %Installer.AbstractLogger) As %Status [ CodeMode = objectgenerator, Internal ]
 {
-  Quit ##class(%Installer.Manifest).%Generate(%compiledclass, %code, "MyInstall")
+  #; Let XGL document generate code for this method. 
+  Quit ##class(%Installer.Manifest).%Generate(%compiledclass, %code, "setup")
 }
 
 ClassMethod SetAppProperties(pApp As %String, pPath As %String) As %Status
@@ -86,7 +67,5 @@ ClassMethod CompileCSP(pApp As %String, pNamespace As %String) As %Status
 
   Quit $$$OK
 }
-
-
 
 }

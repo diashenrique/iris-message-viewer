@@ -34,8 +34,8 @@
 	<link rel="stylesheet" type="text/css" href="resources/plugins/atlantis-lite/assets/css/atlantis.min.css">
 
 	<!-- DevExtreme themes -->
-	<link rel="stylesheet" type="text/css" href="resources/plugins/extreme18.2.3/css/dx.common.css" />
-	<link rel="stylesheet" type="text/css" href="resources/plugins/extreme18.2.3/css/dx.light.css" />
+	<link rel="stylesheet" type="text/css" href="resources/plugins/extreme20.1.4/css/dx.common.css" />
+	<link rel="stylesheet" type="text/css" href="resources/plugins/extreme20.1.4/css/dx.light.css" />
 
 	<style>
 		.hidden {
@@ -160,14 +160,10 @@
 	<script src="resources/plugins/atlantis-lite/assets/js/atlantis.min.js"></script>
 
 	<!-- JSZip library -->
-	<script type="text/javascript" src="resources/plugins/extreme18.2.3/js/jszip.min.js"></script>
+	<script type="text/javascript" src="resources/plugins/extreme20.1.4/js/jszip.min.js"></script>
 
 	<!-- A DevExtreme library -->
-	<script type="text/javascript" src="resources/plugins/extreme18.2.3/js/dx.all.js"></script>
-
-	<!-- DevExtreme-Intl module -->
-	<script type="text/javascript" src="resources/plugins/extreme18.2.3/js/devextreme-intl.min.js"></script>
-	<script type="text/javascript" src="resources/plugins/extreme18.2.3/js/localization/dx.messages.pt.js"></script>
+	<script type="text/javascript" src="resources/plugins/extreme20.1.4/js/dx.all.js"></script>
 
 	<script type="text/javascript">
 		var urlPreparacao = '#(URLPreparacao)#'

@@ -10,7 +10,8 @@
     "docker-compose": {
       "service": "iris",
       "internalPort": 52773
-    }
+    },
+    "server": "default~iris"
   },
   "objectscript.export.addCategory": true
 }
