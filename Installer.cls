@@ -68,4 +68,32 @@ ClassMethod CompileCSP(pApp As %String, pNamespace As %String) As %Status
   Quit $$$OK
 }
 
+ClassMethod createRESTApp(appName As %String, pNamespace As %String) As %Status
+{
+  #dim sc As %Status = $$$OK
+
+  New $Namespace
+  Set $Namespace = "%SYS"
+
+  If '##class(Security.Applications).Exists(appName) {
+    Set props("AutheEnabled") = $$$AutheUnauthenticated
+    Set props("NameSpace") = pNamespace
+    Set props("IsNameSpaceDefault") = $$$NO
+    Set props("DispatchClass") = "diashenrique.messageviewer.REST.Dispatch"
+    Set props("MatchRoles")=":%All"
+    Set sc = ##class(Security.Applications).Create(appName, .props)
+  }
+  Quit sc
+}
+
+ClassMethod CreateFavorite() As %Status
+{
+  New $Namespace
+  Set $Namespace = "MSGVIEWER"
+
+  Set status = ##class(diashenrique.messageviewer.util.Favorite).%AddFavorite("NewMessageViewer","/csp/msgviewer/messageviewer.csp")
+  
+  Quit status
+}
+
 }
