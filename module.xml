@@ -3,7 +3,8 @@
   <Document name="iris-message-viewer.ZPM">
     <Module>
       <Name>iris-message-viewer</Name>
-      <Version>1.0.1</Version>
+      <Version>1.0.2</Version>
+      <Description>A new approach for the Interoperability Message Viewer</Description>
       <Packaging>module</Packaging>
       <SourcesRoot>src</SourcesRoot>
       <Resource Name="diashenrique.messageviewer.MessageViewer.cls"/>
