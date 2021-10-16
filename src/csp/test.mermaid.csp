@@ -45,9 +45,43 @@
 			font-weight: bold;
 			color: #1A68D6 !important; 
 		}
-		#divMessagesDataGrid {
-			height: 500px;
-    		width: 100%;
+		.diagram-container {
+			width: 50%;
+			height: 100%;
+			float: left;
+		}
+		.processes-body-container {
+			display: inherit;
+		}
+		.tab-container {
+			width: 50%;
+		}
+		.vtable-column {
+			padding-right: 5px;
+		}
+		.vtable-value {
+			padding-left: 5px;
+		}
+		.content-iframe {
+			border: 0;
+			width: 100%
+		}
+
+		@media only screen and (max-width: 768px) {
+			.diagram-container {
+				width: 100%;
+				height: auto;
+				clear: both;
+				float: none;
+			}
+
+			.processes-body-container {
+				display: block;
+			}
+			
+			.tab-container {
+				width: auto;
+			}
 		}
 	</style>
 </head>
@@ -110,15 +144,34 @@
 										</div>
 									</div>
 								</div>
-								<div id="divProcessesBody" class="card-body">
-									<!--
-									<div id="divMessagesDataGrid"></div>
-									<div id="selected-data" class="hidden">
-										<span class="font-weight-bold">Selected Messages to Resend:</span>
-										<span id="selected-items-container"></span>
+								<div id="divProcessesBody" class="card-body processes-body-container">
+									<div class="mermaid diagram-container">
 									</div>
-									-->
-									<div class="mermaid">
+									<div class="tab-container">
+										<!-- Nav tabs -->
+										<ul class="nav nav-tabs">
+											<li class="nav-item">
+												<a class="nav-link active" href="#header" aria-controls="header" role="tab" data-toggle="tab">Header</a>
+											</li>
+											<li class="nav-item" class="active">
+												<a class="nav-link" href="#body" aria-controls="body" role="tab" data-toggle="tab">Body</a>
+											</li>
+											<li class="nav-item" class="active">
+												<a class="nav-link" href="#content" aria-controls="content" role="tab" data-toggle="tab">Content</a>
+											</li>
+										</ul>
+										<!-- Tab panes -->
+										<div class="tab-content">
+											<div role="tabpanel" class="tab-pane active" id="header">
+												<div id="divMessageHeaderDataGrid"></div>
+											</div>
+											<div role="tabpanel" class="tab-pane" id="body">
+												<div id="divMessageBodyDataGrid"></div>
+											</div>
+											<div role="tabpanel" class="tab-pane" id="content">
+												<div id="divMessageContent"></div>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>

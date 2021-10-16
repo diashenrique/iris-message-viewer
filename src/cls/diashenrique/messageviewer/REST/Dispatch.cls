@@ -9,6 +9,7 @@ XData UrlMap [ XMLNamespace = "http://www.intersystems.com/urlmap" ]
 <Route Url="/message/:id" Method="GET" Call="diashenrique.messageviewer.REST.Messages:getUnlimitedMessages" Cors="true"/>
 <Route Url="/message/resend/" Method="POST" Call="diashenrique.messageviewer.REST.Messages:ResendMessage" Cors="true"/>
 <Route Url="/diagram/:id" Method="GET" Call="diashenrique.messageviewer.REST.Diagram:GetDiagram" Cors="true"/>
+<Route Url="/diagram/message/:id" Method="GET" Call="diashenrique.messageviewer.REST.Diagram:GetMessageInfo" Cors="true"/>
 
 </Routes>
 }

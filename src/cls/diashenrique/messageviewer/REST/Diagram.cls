@@ -27,6 +27,7 @@ ClassMethod GetDiagram(pSessionId As %Integer) As %Status
 			Set className = $LG(classNameTokens, *)
 			Set:(className = "") className = "NULL"
 			Do json.messages.%Push({
+				"id": (rsMessages.id),
 				"from": (rsMessages.SourceConfigName),
 				"to": (rsMessages.TargetConfigName),
 				"message": (rsMessages.TimeCreated_" "_className)
@@ -51,7 +52,60 @@ Query selectParticipants(pSessionId As %Integer) As %SQLQuery
 
 Query selectMessages(pSessionId As %Integer) As %SQLQuery
 {
-	SELECT SourceConfigName, TargetConfigName, TimeCreated, MessageBodyClassName FROM Ens.MessageHeader WHERE SessionId = :pSessionId
+	SELECT Id, SourceConfigName, TargetConfigName, TimeCreated, MessageBodyClassName FROM Ens.MessageHeader WHERE SessionId = :pSessionId
+}
+
+ClassMethod GetMessageInfo(pSessionId As %Integer) As %Status
+{
+	#Dim rsMsgHeader As %SQL.ISelectResult
+    Set %response.ContentType = "application/json"
+	Set tSC = $System.Status.OK()
+	Set json = {}
+	Try {
+		Set rsMsgHeader = ..getMessageHeaderFunc(pSessionId)
+		If (rsMsgHeader.%Next()) {
+			#Dim metadata As %SQL.StatementMetadata
+			Set metadata = rsMsgHeader.%GetMetadata()
+			Set intcolumnCount = metadata.columnCount
+			Set json.header = {}
+			For i=1:1:intcolumnCount {
+				Do json.header.%Set(metadata.columns.GetAt(i).colName, rsMsgHeader.%GetData(i))
+			}
+			Kill metadata
+			
+			If (rsMsgHeader.MessageBodyClassName '= "") {
+				Set rsMsgBody = ..GetMessageBody(rsMsgHeader.MessageBodyClassName, rsMsgHeader.MessageBodyId)
+				If (rsMsgBody.%Next()) {
+					#Dim metadata As %SQL.StatementMetadata
+					Set metadata = rsMsgBody.%GetMetadata()
+					Set intcolumnCount = metadata.columnCount
+					Set json.body = {}
+					For i=1:1:intcolumnCount {
+						Do json.body.%Set(metadata.columns.GetAt(i).colName, rsMsgBody.%GetData(i))
+					}
+					Kill metadata
+				}
+			}
+		}
+
+		Write json.%ToJSON()
+	}
+	Catch (oException) {
+		Set tSC = oException.AsStatus()
+	}
+	Quit tSC
+}
+
+Query getMessageHeader(pMsgId As %Integer) As %SQLQuery
+{
+	SELECT * FROM Ens.MessageHeader WHERE Id = :pMsgId
+}
+
+ClassMethod GetMessageBody(pClassName As %String, pMsgBodyId As %Integer) As %String
+{
+	Set tableName = ##class(%Dictionary.CompiledClass).%OpenId(pClassName).SqlQualifiedNameQ
+	Set sql = "SELECT * FROM "_tableName_" WHERE Id = ?"
+	Return ##class(%SQL.Statement).%ExecDirect(, sql, pMsgBodyId)
 }
 
 }
