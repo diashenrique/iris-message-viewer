@@ -3,7 +3,7 @@
   <Document name="iris-message-viewer.ZPM">
     <Module>
       <Name>iris-message-viewer</Name>
-      <Version>1.0.3</Version>
+      <Version>1.5</Version>
       <Description>A new approach for the Interoperability Message Viewer</Description>
       <Keywords>message,interoperability,production,ux,ui,rest</Keywords>
       <Packaging>module</Packaging>
