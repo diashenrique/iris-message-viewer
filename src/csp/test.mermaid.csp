@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>IRIS Message Viewer</title>
+	<meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+	<link rel="icon" href="resources/img/ISC_IRIS_icon.ico" type="image/x-icon" />
+
+	<!-- Mermaid lib -->
+  	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/knsv/mermaid@8.13.2/dist/mermaid.js"></script>
+
+	<!-- Fonts and icons -->
+	<script src="resources/plugins/atlantis-lite/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script type="text/javascript">
+		WebFont.load({
+			google: {
+				"families": ["Lato:300,400,700,900"]
+			},
+			custom: {
+				"families": ["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular",
+					"Font Awesome 5 Brands", "simple-line-icons"
+				],
+				urls: ['resources/plugins/atlantis-lite/assets/css/fonts.min.css']
+			},
+			active: function () {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" type="text/css" href="resources/plugins/atlantis-lite/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="resources/plugins/atlantis-lite/assets/css/atlantis.min.css">
+
+	<!-- DevExtreme themes -->
+	<link rel="stylesheet" type="text/css" href="resources/plugins/extreme20.1.4/css/dx.common.css" />
+	<link rel="stylesheet" type="text/css" href="resources/plugins/extreme20.1.4/css/dx.light.css" />
+
+	<style>
+		.hidden {
+			display: none;
+		}
+		.sessionLink {
+			cursor: pointer;
+			font-weight: bold;
+			color: #1A68D6 !important; 
+		}
+		.diagram-container {
+			width: 50%;
+			height: 100%;
+			float: left;
+		}
+		.processes-body-container {
+			display: inherit;
+		}
+		.tab-container {
+			width: 50%;
+		}
+		.vtable-column {
+			padding-right: 5px;
+		}
+		.vtable-value {
+			padding-left: 5px;
+		}
+		.content-iframe {
+			border: 0;
+			width: 100%
+		}
+
+		@media only screen and (max-width: 768px) {
+			.diagram-container {
+				width: 100%;
+				height: auto;
+				clear: both;
+				float: none;
+			}
+
+			.processes-body-container {
+				display: block;
+			}
+			
+			.tab-container {
+				width: auto;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="wrapper overlay-sidebar">
+		<div class="main-header">
+			<!-- Logo Header -->
+			<div class="logo-header" data-background-color="white">
+				<div class="logo">
+					<img src="resources/img/InterSystemsIRIS.png" alt="navbar brand" height="35" class="navbar-brand">
+				</div>
+			</div>
+			<!-- End Logo Header -->
+
+			<!-- Navbar Header -->
+			<nav class="navbar navbar-header navbar-expand-lg" data-background-color="white">
+				<div class="container-fluid">
+					<ul class="navbar-nav topbar-nav ml-md-auto align-items-center"></ul>
+				</div>
+			</nav>
+			<!-- End Navbar -->
+		</div>
+
+		<!-- Begin Message Viewer -->
+		<div class="main-panel">
+			<div class="content">
+				<div class="panel-header bg-primary-gradient">
+					<div class="page-inner py-5">
+						<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+							<div>
+								<h2 class="text-white pb-2 fw-bold">Interoperability > Message Viewer</h2>
+								<h5 class="text-white pb-2 mb-2"><span class="fw-bold">Server</span> #($piece($SYSTEM,":",1))# <span class="fw-bold">| Instance</span> #($piece($SYSTEM,":",2))#</h5>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Begin Datagrid -->
+				<div class="page-inner mt--5">
+					<div class="row mt--2">
+						<div class="col-md-12">
+							<div class="card full-height">
+								<div class="card-header">
+									<div class="card-head-row">
+										<div class="card-title">Message Viewer</div>
+										<div class="card-tools">
+											<ul class="nav nav-pills nav-primary nav-pills-no-bd" id="pills-tab" role="tablist">
+												<li class="nav-item">
+													<div class="align-bottom dx-field form-inline ">
+														<div class="form-group">
+															<div id="namespaceField"></div>
+															<!-- <label for="txtSessionId" class="mr-1">Message ID:</label> -->
+															<input type="text" id="txtSessionId" value="" class="form-control ml-2" placeholder="Message ID">
+														</div>
+														<!-- <button type="button" class="btn btn-primary">Resent</button> -->
+														<div id="btnSend" class="send"></div>
+                    									<div id="icon-back"></div>
+                    									<div id="icon-forward"></div>
+													</div>
+												</li>
+												<li class="nav-item">
+													<div class="align-bottom" id="buttonApply"></div>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+								<div id="divProcessesBody" class="card-body processes-body-container">
+									<div class="mermaid diagram-container">
+									</div>
+									<div class="tab-container">
+										<!-- Nav tabs -->
+										<ul class="nav nav-tabs">
+											<li class="nav-item">
+												<a class="nav-link active" href="#header" aria-controls="header" role="tab" data-toggle="tab">Header</a>
+											</li>
+											<li class="nav-item" class="active">
+												<a class="nav-link" href="#body" aria-controls="body" role="tab" data-toggle="tab">Body</a>
+											</li>
+											<li class="nav-item" class="active">
+												<a class="nav-link" href="#content" aria-controls="content" role="tab" data-toggle="tab">Content</a>
+											</li>
+										</ul>
+										<!-- Tab panes -->
+										<div class="tab-content">
+											<div role="tabpanel" class="tab-pane active" id="header">
+												<div id="divMessageHeaderDataGrid"></div>
+											</div>
+											<div role="tabpanel" class="tab-pane" id="body">
+												<div id="divMessageBodyDataGrid"></div>
+											</div>
+											<div role="tabpanel" class="tab-pane" id="content">
+												<div id="divMessageContent"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- End Datagrid -->
+			</div>
+
+			<!-- Begin Footer -->
+			<footer class="footer">
+				<div class="container-fluid">
+					<nav class="pull-left">
+						<ul class="nav">
+							<li class="nav-item">
+								<a class="nav-link" id="urlPortal" href="#">
+									Management Portal
+								</a>
+							</li>
+						</ul>
+					</nav>
+					<div class="copyright ml-auto">2020 <i class="far fa-copyright"></i> by
+						<a href="https://github.com/diashenrique/iris-message-viewer" target="_blank">
+							Henrique Dias
+						</a>
+					</div>
+				</div>
+			</footer>
+			<!-- End Footer -->
+		</div>
+		<!-- End Message Viewer -->
+	</div>
+	<!-- End Wrapper -->
+
+	<!--   Core JS Files   -->
+	<script src="resources/plugins/atlantis-lite/assets/js/core/jquery.3.2.1.min.js"></script>
+	<script src="resources/plugins/atlantis-lite/assets/js/core/popper.min.js"></script>
+	<script src="resources/plugins/atlantis-lite/assets/js/core/bootstrap.min.js"></script>
+
+	<!-- jQuery UI -->
+	<script src="resources/plugins/atlantis-lite/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="resources/plugins/atlantis-lite/assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+	<!-- jQuery Scrollbar -->
+	<script src="resources/plugins/atlantis-lite/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+	<!-- Atlantis JS -->
+	<script src="resources/plugins/atlantis-lite/assets/js/atlantis.min.js"></script>
+
+	<!-- JSZip library -->
+	<script type="text/javascript" src="resources/plugins/extreme20.1.4/js/jszip.min.js"></script>
+
+	<!-- A DevExtreme library -->
+	<script type="text/javascript" src="resources/plugins/extreme20.1.4/js/dx.all.js"></script>
+
+	<!-- BEGIN Message Viewer Custom -->
+	<!--
+  	<script type="text/javascript" src="resources/js/messageviewer.js"></script>
+	-->
+  	<!-- END Message Viewer Custom -->
+	  
+  	<script type="text/javascript" src="resources/js/test-mermaid.js"></script>
+</body>
+</html>
