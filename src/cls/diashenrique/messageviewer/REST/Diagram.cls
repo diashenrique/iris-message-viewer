@@ -108,4 +108,56 @@ ClassMethod GetMessageBody(pClassName As %String, pMsgBodyId As %Integer) As %St
 	Return ##class(%SQL.Statement).%ExecDirect(, sql, pMsgBodyId)
 }
 
+ClassMethod GetPrevSession(pSessionId As %Integer) As %Status
+{
+	#Dim rs As %SQL.ISelectResult
+    Set %response.ContentType = "application/json"
+	Set tSC = $System.Status.OK()
+	Set json = {}
+	Try {
+		Set rs = ..GetPrevSessionQueryFunc(pSessionId)
+		If (rs.%Next()) {
+		}
+		Set json = {
+			"sessionId": (rs.SessionId)
+		}
+		Write json.%ToJSON()
+	}
+	Catch (oException) {
+		Set tSC = oException.AsStatus()
+	}
+	Quit tSC
+}
+
+Query GetPrevSessionQuery(pSessionId As %Integer) As %SQLQuery
+{
+	SELECT TOP 1 SessionId FROM Ens.MessageHeader WHERE SessionId < :pSessionId ORDER BY Id DESC
+}
+
+ClassMethod GetNextSession(pSessionId As %Integer) As %Status
+{
+	#Dim rs As %SQL.ISelectResult
+    Set %response.ContentType = "application/json"
+	Set tSC = $System.Status.OK()
+	Set json = {}
+	Try {
+		Set rs = ..GetNextSessionQueryFunc(pSessionId)
+		If (rs.%Next()) {
+		}
+		Set json = {
+			"sessionId": (rs.SessionId)
+		}
+		Write json.%ToJSON()
+	}
+	Catch (oException) {
+		Set tSC = oException.AsStatus()
+	}
+	Quit tSC
+}
+
+Query GetNextSessionQuery(pSessionId As %Integer) As %SQLQuery
+{
+	SELECT TOP 1 SessionId FROM Ens.MessageHeader WHERE SessionId > :pSessionId ORDER BY Id
+}
+
 }

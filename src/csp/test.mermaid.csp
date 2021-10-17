@@ -131,10 +131,16 @@
 										<div class="card-tools">
 											<ul class="nav nav-pills nav-primary nav-pills-no-bd" id="pills-tab" role="tablist">
 												<li class="nav-item">
-													<div class="align-bottom dx-field">
-														<!--<div id="namespaceField"></div>-->
-														<label for="txtMsgId">Message ID:</label>
-														<input type="text" id="txtMsgId" value="1200">
+													<div class="align-bottom dx-field form-inline ">
+														<div class="form-group">
+															<div id="namespaceField"></div>
+															<!-- <label for="txtSessionId" class="mr-1">Message ID:</label> -->
+															<input type="text" id="txtSessionId" value="" class="form-control ml-2" placeholder="Message ID">
+														</div>
+														<!-- <button type="button" class="btn btn-primary">Resent</button> -->
+														<div id="btnSend" class="send"></div>
+                    									<div id="icon-back"></div>
+                    									<div id="icon-forward"></div>
 													</div>
 												</li>
 												<li class="nav-item">

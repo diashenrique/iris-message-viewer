@@ -1,17 +1,95 @@
 var urlOrigin = window.location.origin;
 var urlREST = urlOrigin + "/csp/msgviewer/api";
+var urlPreparacao = 'diashenrique.messageviewer.MessageViewer.cls';
 
 $(document).ready(function () {
+    var selectedNamespace = localStorage.getItem('namespace');
+
     mermaid.initialize({
         startOnLoad: false,
         theme: 'forest'
     });
-    $('#txtMsgId').keypress(function (event) {
+
+    $('#txtSessionId').keypress(function (event) {
         if (event.which == 13) {
             getDiagram();
             event.preventDefault();
         }
     });
+
+    // todo: copiado de messageviewer.js, aplicar DRY
+    $("#namespaceField").dxSelectBox({
+        dataSource: new DevExpress.data.DataSource({
+            store: new DevExpress.data.CustomStore({
+                loadMode: "raw",
+                load: function () {
+                    return $.getJSON(urlPreparacao, {
+                        method: "getEnsembleNamespace"
+                    });
+                }
+            })
+        }),
+        width: 300,
+        value: selectedNamespace,
+        valueExpr: 'id',
+        displayExpr: 'text',
+        placeholder: "Choose Your Namespace",
+        onValueChanged: function (data) {
+            selectedNamespace = data.value;
+            localStorage.setItem('namespace', data.value);
+            if (selectedNamespace) {
+                $("#btnSend").dxButton({
+                    disabled: false
+                });
+            }
+        }
+    });
+
+    // todo: copiado de messageviewer.js, aplicar DRY
+    $("#btnSend").dxButton({
+        icon: 'far fa-paper-plane',
+        text: "Send",
+        onClick: function(e) { 
+            var idSelecionado = $("#txtSessionId").val();
+
+            if (idSelecionado == "") {
+                DevExpress.ui.notify("No message have been selected", "error");
+            } else {
+                var result = DevExpress.ui.dialog.confirm("Do you want to resend the selected messages?", "Resend Message");
+                result.done(function (resp) {
+                    if (resp) {
+                        var values={id:idSelecionado, namespace:selectedNamespace};
+                        $.ajax({
+                            url: urlREST + "/message/resend/",
+                            method: "POST",
+                            processData: false,
+                            contentType: "application/json",
+                            data: JSON.stringify(values)
+                        }).done(function () {
+                            getDiagram();
+                            DevExpress.ui.notify("Messages were successfully resent", "success", 4000);
+                        });
+                    }
+                });
+
+            }
+        }
+    });
+
+    $("#icon-back").dxButton({
+        icon: "chevronprev",
+        onClick: function(e) { 
+            prevSession();
+        }
+    });
+
+    $("#icon-forward").dxButton({
+        icon: "chevronright",
+        onClick: function(e) { 
+            nextSession();
+        }
+    });
+    
     getDiagram();
 });
 
@@ -35,9 +113,14 @@ function getTextMessageByTextContent(textContent) {
     return Array.from(document.querySelectorAll('text.messageText')).find(text => text.textContent === textContent)
 }
 
+function defaultErrorPresentation(jqxhr, textStatus, error) {
+    var err = `${textStatus}, ${error}\n${jqxhr.responseJSON.errors[0].error}`;
+    alert(err);
+}
+
 function getDiagram() {
-    const sessionId = $('#txtMsgId').val();
-    if (!isNaN(sessionId)) {
+    const sessionId = $('#txtSessionId').val();
+    if (sessionId && !isNaN(sessionId)) {
         $.getJSON(`${urlREST}/diagram/${sessionId}`)
             .done(data => {
                 const indexOf = (value) => data.participants.indexOf(value);
@@ -68,8 +151,7 @@ function getDiagram() {
                 });
             })
             .fail(function (jqxhr, textStatus, error) {
-                var err = `${textStatus}, ${error}\n${jqxhr.responseJSON.errors[0].error}`;
-                alert(err);
+                defaultErrorPresentation(jqxhr, textStatus, error);
             });
     }
 }
@@ -104,7 +186,30 @@ function dataGridProcesses(msg) {
             $("#divMessageContent").html(`<iframe src=${iframeSrc} class="content-iframe"></iframe>`)
         })
         .fail(function (jqxhr, textStatus, error) {
-            var err = `${textStatus}, ${error}\n${jqxhr.responseJSON.errors[0].error}`;
-            alert(err);
+            defaultErrorPresentation(jqxhr, textStatus, error);
+        });
+}
+
+function prevSession() {
+    const sessionId = $('#txtSessionId').val()
+    $.getJSON(`${urlREST}/diagram/session/${sessionId}/prev`)
+        .done(data => {
+            $('#txtSessionId').val(data.sessionId);
+            getDiagram();
+        })
+        .fail(function (jqxhr, textStatus, error) {
+            defaultErrorPresentation(jqxhr, textStatus, error);
+        });
+}
+
+function nextSession() {
+    const sessionId = $('#txtSessionId').val()
+    $.getJSON(`${urlREST}/diagram/session/${sessionId}/next`)
+        .done(data => {
+            $('#txtSessionId').val(data.sessionId);
+            getDiagram();
+        })
+        .fail(function (jqxhr, textStatus, error) {
+            defaultErrorPresentation(jqxhr, textStatus, error);
         });
 }
