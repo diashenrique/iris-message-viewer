@@ -139,8 +139,8 @@
 														</div>
 														<!-- <button type="button" class="btn btn-primary">Resent</button> -->
 														<div id="btnSend" class="send"></div>
-                    									<div id="icon-back"></div>
-                    									<div id="icon-forward"></div>
+                    									<div id="btnPrev"></div>
+                    									<div id="btnNext"></div>
 													</div>
 												</li>
 												<li class="nav-item">
@@ -239,6 +239,6 @@
 	-->
   	<!-- END Message Viewer Custom -->
 	  
-  	<script type="text/javascript" src="resources/js/test-mermaid.js"></script>
+  	<script type="text/javascript" src="resources/js/diagram.js"></script>
 </body>
 </html>
