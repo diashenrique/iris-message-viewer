@@ -81,7 +81,7 @@ Collapse or Expand all groups in a single click.
 
 The information in Session Id field have a link to the Visual Trace.
 
-![Visual Trace](https://raw.githubusercontent.com/diashenrique/iris-message-viewer/master/images/MessageVisualTrace.png)
+![Visual Trace](https://raw.githubusercontent.com/diashenrique/iris-message-viewer/master/images/NewMessageVisualTrace.png)
 
 ### Resend Messages
 
