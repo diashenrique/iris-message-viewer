@@ -6,7 +6,8 @@ var interval = null;
 var arrMessages = [];
 
 function openDetails(pselectedNamespace, pSessionID) {
-    var urlDetails = urlOrigin + "/csp/" + pselectedNamespace.toLowerCase() + "/EnsPortal.VisualTrace.zen?SESSIONID=" + pSessionID;
+    // var urlDetails = urlOrigin + "/csp/" + pselectedNamespace.toLowerCase() + "/EnsPortal.VisualTrace.zen?SESSIONID=" + pSessionID;
+    var urlDetails = `${urlOrigin}/csp/msgviewer/diagram.csp?namespace=${pselectedNamespace.toUpperCase()}&sessionId=${pSessionID}`;
     window.open(urlDetails, '_blank');
 }
 
