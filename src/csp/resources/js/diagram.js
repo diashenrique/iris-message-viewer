@@ -58,7 +58,7 @@ $(document).ready(function () {
     // todo: copiado de messageviewer.js, aplicar DRY
     $("#btnSend").dxButton({
         icon: 'far fa-paper-plane',
-        text: "Send",
+        text: "Resend",
         onClick: function(e) { 
             var idSelecionado = $("#txtSessionId").val();
 
