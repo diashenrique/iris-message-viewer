@@ -1,33 +1,50 @@
 Class diashenrique.messageviewer.REST.Diagram Extends %CSP.REST
 {
 
-ClassMethod GetDiagram(pSessionId As %Integer) As %Status
+ClassMethod GetDiagram() As %Status
 {
 	#Dim rsParticipants As %SQL.ISelectResult
 	#Dim rsMessages As %SQL.ISelectResult
     Set %response.ContentType = "application/json"
 	Set tSC = $System.Status.OK()
 	Set json = {}
+	Set obj = ##class(%DynamicAbstractObject).%FromJSON(%request.Content.Read())
 
+	Set ns = $Namespace
 	Try {
+		ZNspace obj.namespace
+		
 		Set json.participants = []
-		Set rsParticipants = ..selectParticipantsFunc(pSessionId)
+		Set rsParticipants = ..selectParticipantsFunc(obj.sessionId)
 		While rsParticipants.%Next() {
 			Do json.participants.%Push(rsParticipants.Participant)
 		}
 
 		If (json.participants.%Size() = 0) {
-			Throw ##class(%Exception.General).%New("No data found for sessionId "_pSessionId)
+			Throw ##class(%Exception.General).%New("No data found for sessionId "_obj.sessionId)
 		}
 
 		Set json.messages = []
-		Set rsMessages = ..selectMessagesFunc(pSessionId)
+		If (obj.start '= "") && (obj.pageSize '= "") {
+			Set end = obj.start + obj.pageSize - 1
+			Set rsMessages = ..selectMessagesPaginatedFunc(obj.sessionId, obj.start, end)
+
+		} ElseIf (obj.page '= "") && (obj.pageSize '= "") {
+			Set pageStart = ((obj.page - 1) * obj.pageSize) + 1
+			Set pageEnd = pageStart + obj.pageSize - 1
+			Set rsMessages = ..selectMessagesPaginatedFunc(obj.sessionId, pageStart, pageEnd)
+
+		} Else {
+			Set rsMessages = ..selectMessagesFunc(obj.sessionId)
+		}
 		While rsMessages.%Next() {
+			Set json.totalMessages = rsMessages.total
 			Set classNameTokens = $LFS(rsMessages.MessageBodyClassName, ".")
 			Set className = $LG(classNameTokens, *)
 			Set:(className = "") className = "NULL"
 			Do json.messages.%Push({
-				"id": (rsMessages.id),
+				"id": (rsMessages.ID),
+				"vid": (rsMessages.VID),
 				"from": (rsMessages.SourceConfigName),
 				"to": (rsMessages.TargetConfigName),
 				"message": (rsMessages.TimeCreated_" "_className)
@@ -39,6 +56,7 @@ ClassMethod GetDiagram(pSessionId As %Integer) As %Status
 	Catch (oException) {
 		Set tSC = oException.AsStatus()
 	}
+	ZNspace ns
 
 	Quit tSC
 }
@@ -50,19 +68,35 @@ Query selectParticipants(pSessionId As %Integer) As %SQLQuery
 	SELECT TargetConfigName AS Participant FROM Ens.MessageHeader WHERE SessionId = :pSessionId
 }
 
-Query selectMessages(pSessionId As %Integer) As %SQLQuery
+Query selectMessages(pSessionId As %Integer, pStart As %Integer, pEnd As %Integer) As %SQLQuery
 {
-	SELECT Id, SourceConfigName, TargetConfigName, TimeCreated, MessageBodyClassName FROM Ens.MessageHeader WHERE SessionId = :pSessionId
+	SELECT Id As VID, Id, SourceConfigName, TargetConfigName, TimeCreated, MessageBodyClassName, COUNT(*) AS total 
+	FROM Ens.MessageHeader 
+	WHERE SessionId = :pSessionId
 }
 
-ClassMethod GetMessageInfo(pSessionId As %Integer) As %Status
+Query selectMessagesPaginated(pSessionId As %Integer, pStart As %Integer, pEnd As %Integer) As %SQLQuery
+{
+	-- SELECT Id, SourceConfigName, TargetConfigName, TimeCreated, MessageBodyClassName FROM Ens.MessageHeader WHERE SessionId = :pSessionId
+	SELECT v.%VID VID, v.* FROM (
+		SELECT Id, SourceConfigName, TargetConfigName, TimeCreated, MessageBodyClassName, COUNT(*) AS total 
+		FROM Ens.MessageHeader 
+		WHERE SessionId = :pSessionId
+	) v
+	WHERE v.%VID BETWEEN :pStart AND :pEnd
+}
+
+ClassMethod GetMessageInfo() As %Status
 {
 	#Dim rsMsgHeader As %SQL.ISelectResult
     Set %response.ContentType = "application/json"
 	Set tSC = $System.Status.OK()
 	Set json = {}
+	Set obj = ##class(%DynamicAbstractObject).%FromJSON(%request.Content.Read())
+	Set ns = $Namespace
 	Try {
-		Set rsMsgHeader = ..getMessageHeaderFunc(pSessionId)
+		ZNspace obj.namespace
+		Set rsMsgHeader = ..getMessageHeaderFunc(obj.sessionId)
 		If (rsMsgHeader.%Next()) {
 			#Dim metadata As %SQL.StatementMetadata
 			Set metadata = rsMsgHeader.%GetMetadata()
@@ -93,6 +127,7 @@ ClassMethod GetMessageInfo(pSessionId As %Integer) As %Status
 	Catch (oException) {
 		Set tSC = oException.AsStatus()
 	}
+	ZNspace ns
 	Quit tSC
 }
 
@@ -108,56 +143,64 @@ ClassMethod GetMessageBody(pClassName As %String, pMsgBodyId As %Integer) As %St
 	Return ##class(%SQL.Statement).%ExecDirect(, sql, pMsgBodyId)
 }
 
-ClassMethod GetPrevSession(pSessionId As %Integer) As %Status
+ClassMethod GetPrevSession() As %Status
 {
 	#Dim rs As %SQL.ISelectResult
     Set %response.ContentType = "application/json"
+	Set obj = ##class(%DynamicAbstractObject).%FromJSON(%request.Content.Read())
 	Set tSC = $System.Status.OK()
 	Set json = {}
+	Set ns = $Namespace
 	Try {
-		Set rs = ..GetPrevSessionQueryFunc(pSessionId)
+		ZNspace obj.namespace
+		Set rs = ..GetPrevSessionQueryFunc(obj.sessionId)
 		If (rs.%Next()) {
-		}
-		Set json = {
-			"sessionId": (rs.SessionId)
+			Set json = {
+				"sessionId": (rs.SessionId)
+			}
 		}
 		Write json.%ToJSON()
 	}
 	Catch (oException) {
 		Set tSC = oException.AsStatus()
 	}
+	ZNspace ns
 	Quit tSC
 }
 
 Query GetPrevSessionQuery(pSessionId As %Integer) As %SQLQuery
 {
-	SELECT TOP 1 SessionId FROM Ens.MessageHeader WHERE SessionId < :pSessionId ORDER BY Id DESC
+	SELECT TOP 1 SessionId FROM Ens.MessageHeader WHERE SessionId < :pSessionId ORDER BY SessionId DESC
 }
 
-ClassMethod GetNextSession(pSessionId As %Integer) As %Status
+ClassMethod GetNextSession() As %Status
 {
 	#Dim rs As %SQL.ISelectResult
     Set %response.ContentType = "application/json"
+	Set obj = ##class(%DynamicAbstractObject).%FromJSON(%request.Content.Read())
 	Set tSC = $System.Status.OK()
 	Set json = {}
+	Set ns = $Namespace
 	Try {
-		Set rs = ..GetNextSessionQueryFunc(pSessionId)
+		ZNspace obj.namespace
+		Set rs = ..GetNextSessionQueryFunc(obj.sessionId)
 		If (rs.%Next()) {
-		}
-		Set json = {
-			"sessionId": (rs.SessionId)
+			Set json = {
+				"sessionId": (rs.SessionId)
+			}
 		}
 		Write json.%ToJSON()
 	}
 	Catch (oException) {
 		Set tSC = oException.AsStatus()
 	}
+	ZNspace ns
 	Quit tSC
 }
 
 Query GetNextSessionQuery(pSessionId As %Integer) As %SQLQuery
 {
-	SELECT TOP 1 SessionId FROM Ens.MessageHeader WHERE SessionId > :pSessionId ORDER BY Id
+	SELECT TOP 1 SessionId FROM Ens.MessageHeader WHERE SessionId > :pSessionId ORDER BY SessionId
 }
 
 }
