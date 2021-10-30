@@ -156,8 +156,8 @@
 														<div class="form-group">
 															<input type="number" id="txtPage" min="1" value="1" class="form-control" size="2" placeholder="Page" title="Page number">
 															<input type="number" id="txtPageSize" min="1" value="100" class="form-control" size="2" placeholder="Page size" title="Page size">
-															<div id="btnPrev2"></div>
-															<div id="btnNext2"></div>
+															<div id="btnPrevMsgPage"></div>
+															<div id="btnNextMsgPage"></div>
 														</div>
 														<div class="form-group">
 															<div id="btnToggleMsgInfo"></div>
@@ -173,16 +173,24 @@
 									</div>
 								</div>
 								<div id="divProcessesBody" class="card-body processes-body-container">
-									<!--
 									<div>
-										<div class="align-bottom dx-field form-inline">
+										<div>
+											<div id="btnZoomIn"></div>
+											<div id="btnZoomOut"></div>
+											<div id="btnResetZoom"></div>
+											<div id="btnPanLeft"></div>
+											<div id="btnPanUp"></div>
+											<div id="btnPanDown"></div>
+											<div id="btnPanRight"></div>
+											<div id="btnCenter"></div>
 										</div>
 										<div class="mermaid diagram-container">
 										</div>
 									</div>
-									-->
+									<!--
 									<div class="mermaid diagram-container">
 									</div>
+									-->
 									<div class="tab-container">
 										<!-- Nav tabs -->
 										<ul class="nav nav-tabs">
@@ -269,6 +277,8 @@
 	-->
   	<!-- END Message Viewer Custom -->
 	  
+  	<script type="text/javascript" src="resources/js/MyDataBag.js"></script>
+  	<script type="text/javascript" src="resources/js/zoom.js"></script>
   	<script type="text/javascript" src="resources/js/diagram.js"></script>
 </body>
 </html>

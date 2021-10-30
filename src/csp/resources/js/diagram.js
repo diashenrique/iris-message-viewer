@@ -29,17 +29,29 @@ $(document).ready(function () {
     });
 
     $('#txtPage').change(function (event) {
-        // if (event.which == 13) {
-            dataBag.msgPage = $('#txtPage').val();
-            event.preventDefault();
-        // }
+        dataBag.msgPage = $('#txtPage').val();
+        event.preventDefault();
     });
 
     $('#txtPageSize').change(function (event) {
-        // if (event.which == 13) {
+        dataBag.msgPageSize = $('#txtPageSize').val();
+        event.preventDefault();
+    });
+
+    $('#txtPage').keypress(function (event) {
+        if (event.which == 13) {
+            dataBag.msgPage = $('#txtPage').val();
             dataBag.msgPageSize = $('#txtPageSize').val();
-            event.preventDefault();
-        // }
+            getDiagram();
+        }
+    });
+
+    $('#txtPageSize').keypress(function (event) {
+        if (event.which == 13) {
+            dataBag.msgPage = $('#txtPage').val();
+            dataBag.msgPageSize = $('#txtPageSize').val();
+            getDiagram();
+        }
     });
 
     // todo: copiado de messageviewer.js, aplicar DRY
@@ -134,18 +146,58 @@ $(document).ready(function () {
         }
     });
 
-    $("#btnPrev2").dxButton({
+    $("#btnPrevMsgPage").dxButton({
         icon: "chevronprev",
         onClick: function (e) {
             prevMsgPage();
         }
     });
 
-    $("#btnNext2").dxButton({
+    $("#btnNextMsgPage").dxButton({
         icon: "chevronright",
         onClick: function (e) {
             nextMsgPage();
         }
+    });
+
+    $("#btnZoomIn").dxButton({
+        icon: "plus",
+        onClick: zoomIn
+    });
+
+    $("#btnZoomOut").dxButton({
+        icon: "minus",
+        onClick: zoomOut
+    });
+
+    $("#btnResetZoom").dxButton({
+        icon: "undo",
+        onClick: resetZoom
+    });
+
+    $("#btnPanLeft").dxButton({
+        icon: "arrowleft",
+        onClick: panLeft
+    });
+
+    $("#btnPanUp").dxButton({
+        icon: "arrowup",
+        onClick: panUp
+    });
+
+    $("#btnPanDown").dxButton({
+        icon: "arrowdown",
+        onClick: panDown
+    });
+
+    $("#btnPanRight").dxButton({
+        icon: "arrowright",
+        onClick: panRight
+    });
+
+    $("#btnCenter").dxButton({
+        icon: "isblank",
+        onClick: center
     });
 
     // todo: persist and recover from localStorage
@@ -166,43 +218,6 @@ $(document).ready(function () {
 
     getDiagram();
 });
-
-class MyDataBag {
-    constructor(initValues) {
-        if (initValues) {
-            const keys = Object.keys(initValues);
-            if (keys) {
-                keys.forEach(key => {
-                    this[key] = initValues[key];
-                });
-            }
-        }
-    }
-    
-    onchange = (propName, oldValue, newValue) => {};
-
-    set msgPage(value) {
-        if (value != this._msgPage) {
-            this.onchange('msgPage', this._msgPage, value);
-        }
-        this._msgPage = value;
-    }
-
-    get msgPage() {
-        return this._msgPage;
-    }
-
-    set msgPageSize(value) {
-        if (value != this._msgPageSize) {
-            this.onchange('msgPageSize', this._msgPageSize, value);
-        }
-        this._msgPageSize = value;
-    }
-
-    get msgPageSize() {
-        return this._msgPageSize;
-    }
-}
 
 function renderMermaid(container) {
     container = container || document.querySelectorAll(".mermaid");
@@ -227,16 +242,6 @@ function getTextMessageByTextContent(textContent) {
 function defaultErrorPresentation(jqxhr, textStatus, error) {
     var err = `${textStatus}, ${error}\n${jqxhr.responseJSON.errors[0].error}`;
     DevExpress.ui.notify(err, "error");
-}
-
-function prevMsgPage() {
-    dataBag.msgPage--;
-    getDiagram();
-}
-
-function nextMsgPage() {
-    dataBag.msgPage++;
-    getDiagram();
 }
 
 function getDiagram() {
@@ -278,16 +283,15 @@ function getDiagram() {
                 ${data.messages.reduce((acc, curr, idx) => {
                     acc.push(`P${indexOf(curr.from)}->>P${indexOf(curr.to)}: ${curr.message}`);
                     return acc;
-                }, []).join('\n')}
-            `;
+                }, []).join('\n')}`;
 
                 $(".mermaid").html(diagram);
                 renderMermaid().then(() => {
                     if (data.messages[data.messages.length - 1].vid < data.totalMessages) {
-                        drawBreakSign('.mermaid', 'top');
+                        drawBreakSign('.mermaid', 'bottom');
                     }
                     if (data.messages[0].vid > 1) {
-                        drawBreakSign('.mermaid', 'bottom');
+                        drawBreakSign('.mermaid', 'top');
                     }
                     enableZoomPan();
                     data.messages.forEach((msg) => {
@@ -308,22 +312,65 @@ function getDiagram() {
     }
 }
 
+function drawBreakSignold(containerSelector, position) {
+    const svgns = "http://www.w3.org/2000/svg";
+    var array = [...document.querySelectorAll(`${containerSelector} rect.actor`)];
+    if (position === 'top') {
+        array = array.slice(0, array.length / 2);
+    } else {
+        array = array.slice(array.length / 2);
+    }
+    array.forEach(actor => {
+        const bb = actor.getBBox();
+        const x1 = bb.x + (bb.width / 2) - 5;
+        const y1 = bb.y + (position === 'top' ? bb.height + 5 : - 5);
+        const x2 = x1 + 10;
+        const y2 = y1;
+        $('svg').append(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="stroke: #000 !important">`);
+    });
+}
+
 function drawBreakSign(containerSelector, position) {
     const svgns = "http://www.w3.org/2000/svg";
-    const array = [...document.querySelectorAll(`${containerSelector} rect.actor`)];
+    var array = [...document.querySelectorAll(`${containerSelector} rect.actor`)];
     const bb1 = array[0].getBBox();
     const bb2 = array[parseInt(array.length / 2) - 1].getBBox();
     const bb3 = array[parseInt(array.length / 2)].getBBox();
-    const rect1 = document.createElementNS(svgns, 'rect');
     const height = 5;
-    rect1.setAttributeNS(null, 'id', 'rect1');
-    rect1.setAttributeNS(null, 'x', bb1.x);
-    rect1.setAttributeNS(null, 'y', bb1.y + (position === 'top' ? bb1.height + 5 : bb3.y - height - 5));
-    rect1.setAttributeNS(null, 'width', bb2.x + bb2.width);
-    rect1.setAttributeNS(null, 'height', height);
-    rect1.setAttributeNS(null, 'fill', '#ffffff');
-    rect1.setAttributeNS(null, 'stroke', '#000000');
-    document.querySelector(`${containerSelector} svg`).appendChild(rect1);
+    const width = bb2.x + bb2.width;
+    const rect1 = document.createElementNS(svgns, 'rect');
+    const x = bb1.x;
+    const y = bb1.y + (position === 'top' ? bb1.height + 5 : bb3.y - height - 5);
+    $('svg').append(`<rect x="${x}" y="${y}" width="${width}" height="${height}" fill="#fff">`);
+
+    var translate = "";
+    if (position === 'top') {
+        array = array.slice(0, array.length / 2);
+        translate = `translate(0 ${height})`;
+    } else {
+        array = array.slice(array.length / 2);
+        translate = `translate(0 ${-height})`;
+    }
+    array.forEach(actor => {
+        const bb = actor.getBBox();
+        const x1 = bb.x + (bb.width / 2) - 5;
+        const y1 = bb.y + (position === 'top' ? bb.height + 5 : - 5);
+        const x2 = x1 + 10;
+        $('svg').append(`
+        <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y1}" 
+            style="
+                stroke: #000 !important; 
+                transform: rotate(45deg); 
+                transform-box: fill-box; 
+                transform-origin: center;">`);
+        $('svg').append(`
+        <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y1}" 
+            style="
+                stroke: #000 !important; 
+                transform: translate(0px, ${position === 'top' ? height : -height}px) 
+                rotate(45deg); transform-box: fill-box; 
+                transform-origin: center;">`);
+    });
 }
 
 function dataGridProcesses(msg) {
@@ -426,18 +473,12 @@ function nextSession() {
         });
 }
 
-// @see: https://jsfiddle.net/zu_min_com/2agy5ehm/26/
-function enableZoomPan() {
-    if (document.querySelector('g[data-mermaid-zoom-pan]')) return;
+function prevMsgPage() {
+    dataBag.msgPage--;
+    getDiagram();
+}
 
-    var svgs = d3.selectAll(".mermaid svg");
-    svgs.each(function () {
-        var svg = d3.select(this);
-        svg.html("<g data-mermaid-zoom-pan>" + svg.html() + "</g>");
-        var inner = svg.select("g");
-        var zoom = d3.zoom().on("zoom", function (event) {
-            inner.attr("transform", event.transform);
-        });
-        svg.call(zoom);
-    });
+function nextMsgPage() {
+    dataBag.msgPage++;
+    getDiagram();
 }
