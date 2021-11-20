@@ -94,7 +94,7 @@ $(document).ready(function () {
             } else {
                 var result = DevExpress.ui.dialog.confirm("Do you want to resend the selected messages?", "Resend Message");
                 result.done(function (resp) {
-                    if (resp) 
+                    if (resp) {
                         var values = { id: idSelecionado, namespace: selectedNamespace };
                         $.ajax({
                             url: urlREST + "/message/resend/",
@@ -108,7 +108,6 @@ $(document).ready(function () {
                         });
                     }
                 });
-
             }
         }
     });
@@ -391,7 +390,7 @@ function dataGridProcesses(msg) {
                 data = data || {};
                 const keys = Object.keys(data);
                 if (keys.length > 0) {
-                    return `<table>
+                    return `<table class="table table-striped table-sm">
                     ${keys.reduce((acc, curr) => {
                         acc += `<tr><td class="text-uppercase font-weight-bold vtable-column">${curr}</td><td><div class="vtable-value">${data[curr]}</div></td></tr>`;
                         return acc;
