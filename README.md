@@ -81,7 +81,7 @@ Collapse or Expand all groups in a single click.
 
 The information in Session Id field have a link to the Visual Trace.
 
-![Visual Trace](https://raw.githubusercontent.com/diashenrique/iris-message-viewer/master/images/MessageVisualTrace.png)
+![Visual Trace](https://raw.githubusercontent.com/diashenrique/iris-message-viewer/master/images/NewMessageVisualTrace.png)
 
 ### Resend Messages
 
@@ -106,3 +106,8 @@ The project was created as a Technology Example using the possibilities provided
 The library used for this demo, DevExtreme, it's free to use and to develop non-commercial applications.
 
 For specific feature availability and license restrictions, please, visit the website to the product feature [comparison](https://js.devexpress.com/Buy/), and the [DevExtreme Non-Commercial, Non-Competitive License Agreement](https://js.devexpress.com/EULAs/DevExtremeNonCommercial/), respectively.
+
+## Dream team
+
+- [Henrique Dias](https://community.intersystems.com/user/henrique-dias-2)
+- [José Roberto Pereira](https://community.intersystems.com/user/jos%C3%A9-roberto-pereira-0)

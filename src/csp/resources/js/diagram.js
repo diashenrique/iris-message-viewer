@@ -94,7 +94,7 @@ $(document).ready(function () {
             } else {
                 var result = DevExpress.ui.dialog.confirm("Do you want to resend the selected messages?", "Resend Message");
                 result.done(function (resp) {
-                    if (resp) {
+                    if (resp) 
                         var values = { id: idSelecionado, namespace: selectedNamespace };
                         $.ajax({
                             url: urlREST + "/message/resend/",
@@ -215,7 +215,6 @@ $(document).ready(function () {
             }
         }
     });
-
     getDiagram();
 });
 

@@ -3,11 +3,11 @@
   <Document name="iris-message-viewer.ZPM">
     <Module>
       <Name>iris-message-viewer</Name>
-      <Version>1.0.3</Version>
-      <Description>A new approach for the Interoperability Message Viewer</Description>
-      <Keywords>message,interoperability,production,ux,ui,rest</Keywords>
+      <Version>1.5.3</Version>
+      <Description>A new approach for the Interoperability Message Viewer and Visual Trace</Description>
+      <Keywords>message,interoperability,production,ux,ui,rest,visual,trace</Keywords>
       <Packaging>module</Packaging>
-      <CSPApplication CookiePath="/csp/msgviewer/" DefaultTimeout="900" DeployPath="{cspdir}/csp/" Description="Interoperability Management Portal" PasswordAuthEnabled="1" Recurse="1" ServeFiles="1" ServeFilesTimeout="3600" SourcePath="/src/csp" UnauthenticatedEnabled="0" Url="/csp/msgviewer" UseSessionCookie="2"/>
+      <CSPApplication CookiePath="/csp/msgviewer/" DefaultTimeout="900" DeployPath="{cspdir}/csp/${namespace}/" Description="Interoperability Management Portal" MatchRoles=":{$dbrole}" PasswordAuthEnabled="1" Recurse="1" ServeFiles="1" ServeFilesTimeout="3600" SourcePath="/src/csp" UnauthenticatedEnabled="0" Url="/csp/msgviewer" UseSessionCookie="2"/>
       <CSPApplication CookiePath="/csp/msgviewer/api/" DefaultTimeout="900" DispatchClass="diashenrique.messageviewer.REST.Dispatch" MatchRoles=":%All" PasswordAuthEnabled="1" Recurse="1" ServeFiles="1" ServeFilesTimeout="3600" UnauthenticatedEnabled="0" Url="/csp/msgviewer/api" UseSessionCookie="2"/>
       <Resource Directory="cls" Name="diashenrique.PKG"/>
       <SourcesRoot>src</SourcesRoot>

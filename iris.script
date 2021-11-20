@@ -1,6 +1,6 @@
  do $SYSTEM.OBJ.Load("/opt/irisapp/Installer.cls", "ck")
  set sc = ##class(App.Installer).setup() 
- set sc = ##class(App.Installer).SetAppProperties("/csp/msgviewer","/opt/irisapp/csp/")
+ set sc = ##class(App.Installer).SetAppProperties("/csp/msgviewer","/opt/irisapp/src/csp/")
  set sc = ##class(App.Installer).createRESTApp("/csp/msgviewer/api","MSGVIEWER")
  set sc = ##class(App.Installer).CompileCSP("/csp/msgviewer","MSGVIEWER")
  set sc = ##class(App.Installer).CreateFavorite()
