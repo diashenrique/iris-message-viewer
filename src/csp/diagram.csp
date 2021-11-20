@@ -9,6 +9,9 @@
 	<!-- Mermaid lib -->
   	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/knsv/mermaid@8.13.2/dist/mermaid.js"></script>
 
+	<!-- d3 lib -->
+  	<script type="text/javascript" src="https://d3js.org/d3.v6.min.js"></script>
+
 	<!-- Fonts and icons -->
 	<script src="resources/plugins/atlantis-lite/assets/js/plugin/webfont/webfont.min.js"></script>
 	<script type="text/javascript">
@@ -46,25 +49,37 @@
 			color: #1A68D6 !important; 
 		}
 		.diagram-container {
-			width: 50%;
 			height: 100%;
 			float: left;
+		}
+		.diagram-container-maximized {
+			width: 100%;
+			height: auto;
+			clear: both;
+			float: none;
 		}
 		.processes-body-container {
 			display: inherit;
 		}
 		.tab-container {
-			width: 50%;
+			min-width: 50%;
 		}
 		.vtable-column {
 			padding-right: 5px;
 		}
 		.vtable-value {
+			max-width: 100%;
 			padding-left: 5px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 		.content-iframe {
 			border: 0;
 			width: 100%
+		}
+		input[type='number']{
+			width: 80px !important;
 		}
 
 		@media only screen and (max-width: 768px) {
@@ -80,7 +95,7 @@
 			}
 			
 			.tab-container {
-				width: auto;
+				min-width: auto;
 			}
 		}
 	</style>
@@ -131,16 +146,23 @@
 										<div class="card-tools">
 											<ul class="nav nav-pills nav-primary nav-pills-no-bd" id="pills-tab" role="tablist">
 												<li class="nav-item">
-													<div class="align-bottom dx-field form-inline ">
+													<div class="align-bottom dx-field form-inline">
 														<div class="form-group">
 															<div id="namespaceField"></div>
-															<!-- <label for="txtSessionId" class="mr-1">Message ID:</label> -->
-															<input type="text" id="txtSessionId" value="" class="form-control ml-2" placeholder="Message ID">
+															<input type="text" id="txtSessionId" value="" class="form-control" size="5" placeholder="Msg ID">
+															<div id="btnPrev"></div>
+															<div id="btnNext"></div>
 														</div>
-														<!-- <button type="button" class="btn btn-primary">Resent</button> -->
-														<div id="btnSend" class="send"></div>
-                    									<div id="btnPrev"></div>
-                    									<div id="btnNext"></div>
+														<div class="form-group">
+															<input type="number" id="txtPage" min="1" value="1" class="form-control" size="2" placeholder="Page" title="Page number">
+															<input type="number" id="txtPageSize" min="1" value="100" class="form-control" size="2" placeholder="Page size" title="Page size">
+															<div id="btnPrevMsgPage"></div>
+															<div id="btnNextMsgPage"></div>
+														</div>
+														<div class="form-group">
+															<div id="btnToggleMsgInfo"></div>
+															<div id="btnSend" class="send"></div>
+														</div>
 													</div>
 												</li>
 												<li class="nav-item">
@@ -151,8 +173,24 @@
 									</div>
 								</div>
 								<div id="divProcessesBody" class="card-body processes-body-container">
+									<div>
+										<div>
+											<div id="btnZoomIn"></div>
+											<div id="btnZoomOut"></div>
+											<div id="btnResetZoom"></div>
+											<div id="btnPanLeft"></div>
+											<div id="btnPanUp"></div>
+											<div id="btnPanDown"></div>
+											<div id="btnPanRight"></div>
+											<div id="btnCenter"></div>
+										</div>
+										<div class="mermaid diagram-container">
+										</div>
+									</div>
+									<!--
 									<div class="mermaid diagram-container">
 									</div>
+									-->
 									<div class="tab-container">
 										<!-- Nav tabs -->
 										<ul class="nav nav-tabs">
@@ -239,6 +277,8 @@
 	-->
   	<!-- END Message Viewer Custom -->
 	  
+  	<script type="text/javascript" src="resources/js/MyDataBag.js"></script>
+  	<script type="text/javascript" src="resources/js/zoom.js"></script>
   	<script type="text/javascript" src="resources/js/diagram.js"></script>
 </body>
 </html>

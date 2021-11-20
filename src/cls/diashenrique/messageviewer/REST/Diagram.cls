@@ -25,13 +25,26 @@ ClassMethod GetDiagram() As %Status
 		}
 
 		Set json.messages = []
-		Set rsMessages = ..selectMessagesFunc(obj.sessionId)
+		If (obj.start '= "") && (obj.pageSize '= "") {
+			Set end = obj.start + obj.pageSize - 1
+			Set rsMessages = ..selectMessagesPaginatedFunc(obj.sessionId, obj.start, end)
+
+		} ElseIf (obj.page '= "") && (obj.pageSize '= "") {
+			Set pageStart = ((obj.page - 1) * obj.pageSize) + 1
+			Set pageEnd = pageStart + obj.pageSize - 1
+			Set rsMessages = ..selectMessagesPaginatedFunc(obj.sessionId, pageStart, pageEnd)
+
+		} Else {
+			Set rsMessages = ..selectMessagesFunc(obj.sessionId)
+		}
 		While rsMessages.%Next() {
+			Set json.totalMessages = rsMessages.total
 			Set classNameTokens = $LFS(rsMessages.MessageBodyClassName, ".")
 			Set className = $LG(classNameTokens, *)
 			Set:(className = "") className = "NULL"
 			Do json.messages.%Push({
-				"id": (rsMessages.id),
+				"id": (rsMessages.ID),
+				"vid": (rsMessages.VID),
 				"from": (rsMessages.SourceConfigName),
 				"to": (rsMessages.TargetConfigName),
 				"message": (rsMessages.TimeCreated_" "_className)
@@ -55,9 +68,22 @@ Query selectParticipants(pSessionId As %Integer) As %SQLQuery
 	SELECT TargetConfigName AS Participant FROM Ens.MessageHeader WHERE SessionId = :pSessionId
 }
 
-Query selectMessages(pSessionId As %Integer) As %SQLQuery
+Query selectMessages(pSessionId As %Integer, pStart As %Integer, pEnd As %Integer) As %SQLQuery
 {
-	SELECT Id, SourceConfigName, TargetConfigName, TimeCreated, MessageBodyClassName FROM Ens.MessageHeader WHERE SessionId = :pSessionId
+	SELECT Id As VID, Id, SourceConfigName, TargetConfigName, TimeCreated, MessageBodyClassName, COUNT(*) AS total 
+	FROM Ens.MessageHeader 
+	WHERE SessionId = :pSessionId
+}
+
+Query selectMessagesPaginated(pSessionId As %Integer, pStart As %Integer, pEnd As %Integer) As %SQLQuery
+{
+	-- SELECT Id, SourceConfigName, TargetConfigName, TimeCreated, MessageBodyClassName FROM Ens.MessageHeader WHERE SessionId = :pSessionId
+	SELECT v.%VID VID, v.* FROM (
+		SELECT Id, SourceConfigName, TargetConfigName, TimeCreated, MessageBodyClassName, COUNT(*) AS total 
+		FROM Ens.MessageHeader 
+		WHERE SessionId = :pSessionId
+	) v
+	WHERE v.%VID BETWEEN :pStart AND :pEnd
 }
 
 ClassMethod GetMessageInfo() As %Status
@@ -144,7 +170,7 @@ ClassMethod GetPrevSession() As %Status
 
 Query GetPrevSessionQuery(pSessionId As %Integer) As %SQLQuery
 {
-	SELECT TOP 1 SessionId FROM Ens.MessageHeader WHERE SessionId < :pSessionId ORDER BY Id DESC
+	SELECT TOP 1 SessionId FROM Ens.MessageHeader WHERE SessionId < :pSessionId ORDER BY SessionId DESC
 }
 
 ClassMethod GetNextSession() As %Status
@@ -174,7 +200,7 @@ ClassMethod GetNextSession() As %Status
 
 Query GetNextSessionQuery(pSessionId As %Integer) As %SQLQuery
 {
-	SELECT TOP 1 SessionId FROM Ens.MessageHeader WHERE SessionId > :pSessionId ORDER BY Id
+	SELECT TOP 1 SessionId FROM Ens.MessageHeader WHERE SessionId > :pSessionId ORDER BY SessionId
 }
 
 }
