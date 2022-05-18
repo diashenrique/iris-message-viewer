@@ -9,16 +9,15 @@ on:
 env:
   # Change this section according to your needs
   IMAGE_NAME:   iris-message-viewer
-  SERVICE:      iris-message-viewer-demo
-  DOMAIN_NAME:  iris-message-viewer.contest.community.intersystems.com
-
-  # Leave this section untouched
-  PROJECT_ID:   hackathon-297608
-  CLUSTER_NAME: contest
+  SERVICE:      iris-message-viewer
+  DOMAIN_NAME:  iris-message-viewer.demo.community.intersystems.com
+# Leave this section untouched
+  PROJECT_ID:   iris-community-demos
+  CLUSTER_NAME: demo
   GITHUB_SHA:   ${{ github.sha }}
   GCR_LOCATION: eu.gcr.io
   REGION:       europe-west2
-  NAMESPACE:    contest
+  NAMESPACE:    demo
 
 jobs:
   deploy-cloud-run:
@@ -27,7 +26,7 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
- 
+
     - name: Setup Cloud SDK
       uses: google-github-actions/setup-gcloud@v0.2.0
       with:
@@ -37,16 +36,14 @@ jobs:
     - name: Authorize Docker push
       run: gcloud auth configure-docker
 
+
     - name: Build and Push image
       run: |
-        docker build -t ${GCR_LOCATION}/${PROJECT_ID}/${IMAGE_NAME}:${GITHUB_SHA} .
-        docker push ${GCR_LOCATION}/${PROJECT_ID}/${IMAGE_NAME}:${GITHUB_SHA}
-
+        docker buildx build -t ${GCR_LOCATION}/${PROJECT_ID}/${IMAGE_NAME}:${GITHUB_SHA} --push .
     - name: Deploy to Cloud Run
       run: |
         echo "[INFO] Set google project..."
         gcloud config set project ${PROJECT_ID}
-
         echo "[INFO] Deploy service..."
         gcloud run deploy ${SERVICE}   \
           --platform gke               \
@@ -59,7 +56,6 @@ jobs:
           --timeout 300                \
           --verbosity debug            \
           --image ${GCR_LOCATION}/${PROJECT_ID}/${IMAGE_NAME}:${GITHUB_SHA}
-
         echo "[INFO] Create domain mappings..."
         if [[ $(gcloud run domain-mappings list --platform gke --cluster ${CLUSTER_NAME} --cluster-location ${REGION} --namespace ${NAMESPACE} --filter "DOMAIN=${DOMAIN_NAME}" | grep -v DOMAIN | wc -l) == 0 ]]; then
           gcloud run domain-mappings create \
@@ -71,7 +67,6 @@ jobs:
             --verbosity debug               \
             --domain ${DOMAIN_NAME}
         fi
-
     - name: Create domain name
       run: |
         gcloud container clusters get-credentials ${CLUSTER_NAME} --region ${REGION} --project ${PROJECT_ID}
@@ -86,7 +81,6 @@ jobs:
         else
           echo "[INFO] Domain [${DOMAIN_NAME}] is in the domains list. Leave untouched...";     \
         fi
-
     - name: Enable TLS-access
       run: |
         gcloud container clusters get-credentials ${CLUSTER_NAME} --region ${REGION} --project ${PROJECT_ID}
